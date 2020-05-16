@@ -1,3 +1,4 @@
+#written by Kyle Kloster and David F. Gleich
 import collections
 import sys
 
@@ -221,23 +222,4 @@ def ppr_sampling(network, seedset):
 #     sampled = sorted(list(set(sampled)))
 #     print("sampled: ", sampled)
     return sampled
-
-#run the function
-
-# network = nx.karate_club_graph()
-# 
-# # graphFile = 'graphA.txt'
-# # network = readGraph('../data/graphs/' + graphFile, delm="\t")
-# # seed = 100800
-# seed = 8
-# sampled = localSampling(network, seed)
-# print(sampled)
-
-#testing demon
-# import demon as d
-#  
-# g = nx.karate_club_graph()
-# dm = d.Demon(graph=g, epsilon=0.25, min_community_size=3)
-# coms = dm.execute()
-# print(coms)
     
