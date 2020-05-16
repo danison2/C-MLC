@@ -4,69 +4,14 @@ Created on 4 Apr 2018
 @author: DanyK
 '''
 from centroid_detection import detectComs, preprocessG
-from computeF1Score import computeF1Score, getRecall, getConductance, compute_f1_scores
+from computeF1Score import computeF1Score, getRecall, getConductance
 import numpy as np
 from loadNetwork import readGraph, readEdgeList
 import networkx as nx
 import os
 import time
-from CCD.getNumberClusters import getNumberBySparseness, detectCommunitiesSNMF
 from CCD.ppr_sampling import ppr_sampling
 from hk_cd import hk_cd, hk_sampling
-
-def SMLC(G, seed):
-#     smapling with ppr
-    sample = hk_sampling(G, [seed])
-#     sample = ppr_sampling(G, [seed])
-    
-    subG_temp = nx.subgraph(G, sample)
-#     nodes = [int(v) for v in subG.nodes]
-#     print(len(nodes))
-    
-    connected_components = [c for c in sorted(nx.biconnected_components(subG_temp), key=len, reverse=True)]
-#     print(lenconnected_components)
-    top_comp =  [comp for comp in connected_components if seed in comp]
-#     print(top_comp)
-    nodes = [int(node) for node in top_comp[0]]
-    subG = nx.subgraph(G, nodes)
-#     sample = hk_cd(G, [seed])
-    k = getNumberBySparseness(subG, int(len(nodes)/4))
-#         print("k", k)
-    comsFinal = detectCommunitiesSNMF(subG, k)
-    return comsFinal 
-
-def run_multicom(G, seed):
-    from multicom import multicom, approximate_ppr, conductance_sweep_cut, load_graph
-    adj_matrix = nx.adjacency_matrix(G)
-    seeds, communities = multicom(adj_matrix, seed, approximate_ppr, conductance_sweep_cut, explored_ratio=.9)
-    return communities
-
-def MLOSP(G, seed):
-    from LOSP.losp_cd import MLOSP
-    communities = MLOSP(G, seed) 
-    return communities 
-
-
-def MLC(G, seed):
-    from centroid_detection import BFS
-    from CCD.getNumberClusters_old import getCommunities, getClustersMine
-    
-    sampled = BFS(G, seed, 2)
-    subG = nx.subgraph(G, sampled)
-#     print("Sample size: ", len(subG.nodes))
-    clusters = getClustersMine(subG)
-    detected = getCommunities(subG, clusters, 0.75)
-    return detected, sampled
-
-def LDEMON(G, seed):
-    from demon_cd import l_demon
-    from centroid_detection import BFS
-#     from getNumberClusters import getClustersMine, getCommunities
-    
-#     sampled = BFS(G, seed, 3)
-#     subG = nx.subgraph(G, sampled)
-    detected = l_demon(G)
-    return detected
 
 path_folder = "../data/graphs/"
 

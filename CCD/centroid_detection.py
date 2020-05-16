@@ -281,25 +281,3 @@ def filterCentroids(G, centroids):
                 if v in filtered_centroids:
                     filtered_centroids.remove(v)  
     return filtered_centroids
-
-def LOSP(G, seedset):
-    from LOSP.losp_cd import LOSP
-    community = LOSP(G, seedset) 
-    return community 
-
-
-# G1 =  nx.karate_club_graph()
-# # G1 = readGraph("../data/graphs/simple1.txt"," ")
-# 
-# seed = 2
-# #     # # # # # # #ground truth communities
-# groundTruth = readGroundTruthSeed("../data/ground_truth/com-karate.txt", seed)
-# 
-# G = preprocessG(G1)
-# sample = neighborSampling(G, seed, 10, "minDegree")
-# comsTemp, centroids = detectComs(G1, G, seed, 10, "minDegree")
-# print(centroids)
-# coms = [com for com in comsTemp if seed in com]
-# print(coms)
-# f1, f2 = computeF1Score(groundTruth, coms)
-# print("F1 : ", f1,"F2: ",  f2)

@@ -4,34 +4,12 @@ Created on 4 Apr 2018
 @author: DanyK
 '''
 from centroid_detection import detectComs, preprocessG
-from computeF1Score import computeF1Score, getRecall, getConductance, compute_f1_scores
+from computeF1Score import computeF1Score, getRecall, getConductance
 import numpy as np
 from loadNetwork import readGraph
 import networkx as nx
 import os
 import time
-
-
-def MLC(G, seed):
-    from centroid_detection import BFS
-    from CCD.getNumberClusters_old import getCommunities, getClustersMine
-    
-    sampled = BFS(G, seed, 2)
-    subG = nx.subgraph(G, sampled)
-#     print("Sample size: ", len(subG.nodes))
-    clusters = getClustersMine(subG)
-    detected = getCommunities(subG, clusters, 0.75)
-    return detected, sampled
-
-def LDEMON(G, seed):
-    from demon_cd import l_demon
-    from centroid_detection import BFS
-#     from getNumberClusters import getClustersMine, getCommunities
-    
-    sampled = BFS(G, seed, 2)
-    subG = nx.subgraph(G, sampled)
-    detected = l_demon(subG)
-    return detected, sampled
 
 path_folder = "../data/graphs/"
 
@@ -385,14 +363,7 @@ for graphFile in graphFiles:
                 with open('../data/CCD/timeUsed/' + seedsFile, "a") as myfile:
                     # write communities to file
                     myfile.write(str(diffTime) + "\n")
-# 
-#                 with open('../data/results_SMLC/condDetected/' + seedsFile, "a") as myfile:
-#                     # write communities to file
-#                     myfile.write(str(condDetected) + "\n")
-# #                 #print("Avg com: ",avg_size)
-#                 with open('../data/results_SMLC/condGT/' + seedsFile, "a") as myfile:
-#                     # write communities to file
-#                     myfile.write(str(condGT) + "\n")
+
                 if i == 100:
                     break
 
@@ -411,18 +382,3 @@ for graphFile in graphFiles:
  
         with open('../data/CCD/recall/' + seedsFile, "a") as myfile:
             myfile.write("Average Recall: " + str(Avg_Recall) + "\n")
-# 
-#         with open('../data/results/condSample/' + seedsFile, "a") as myfile:
-#             myfile.write("Average Cond Sample: " + str(Avg_CondS) + "\n")
-# 
-#         with open('../data/results/condFlatGT/' + seedsFile, "a") as myfile:
-#             myfile.write("Average Cond FlatGT: " + str(Avg_CondF) + "\n")
-# 
-#         with open('../data/results_SMLC/condDetected/' + seedsFile, "a") as myfile:
-#             myfile.write("Average Cond Detected: " + str(Avg_CondD) + "\n")
-#  
-#         with open('../data/results_SMLC/condGT/' + seedsFile, "a") as myfile:
-#             myfile.write("Average Cond GT: " + str(Avg_CondG) + "\n")
-
-    #         myfile.write("Good Recalls: "+str(goodF1s)+"\n")
-    #         myfile.write("Bad Recalls: "+str(badF1s)+"\n")
