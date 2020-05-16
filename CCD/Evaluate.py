@@ -187,7 +187,7 @@ for graphFile in graphFiles:
         Precisions = []
         Recalls = []
         F1s = []
-        VIs = []
+        F2s = []
 
         condsSample = []
         condsFlatGT = []
@@ -197,7 +197,7 @@ for graphFile in graphFiles:
         Sum_Prec = 0
         Sum_Recall = 0
         Sum_F1 = 0
-        Sum_VI = 0
+        Sum_F2 = 0
 
         Sum_CondS = 0
         Sum_CondF = 0
@@ -211,13 +211,13 @@ for graphFile in graphFiles:
     #     maxF1 = 0
     #     goodF1s = 0
     #     badF1s = 0
-        dirs  = ["VI", "F1", "precision", "recall", "timeUsed", "condDetected", "condGT", "Seeds_used"]
+        dirs  = ["F2", "F1", "precision", "recall", "timeUsed", "condDetected", "condGT", "Seeds_used"]
         for dir1 in dirs:
             directory = os.path.dirname('../data/CCD/' + dir1 + "/" + seedsFile)
             if not os.path.exists(directory):
                 os.makedirs(directory)
 
-#         f = open('../data/results/VI/' + seedsFile, "w+")
+#         f = open('../data/results/F2/' + seedsFile, "w+")
 #         f.close()
 #         f = open('../data/results/F1/' + seedsFile, "w+")
 #         f.close()
@@ -265,15 +265,14 @@ for graphFile in graphFiles:
 #                 print("Detected: ", detectedCommunities)
               
                 if len(detectedCommunities) < 1:
-                    f1, vi = (0,0)
+                    f1, f2 = (0,0)
                     prec, recall = (0,0)
                     condDetected = 1
                     continue
                 else:
-#                     f1, vi = compute_f1_scores(detectedCommunities, groundTruth)
-                                 
+#                       
                     flatDetected = list(set([int(v) for com in detectedCommunities for v in com]))
-                    f1, vi = computeF1Score([flatGT], [flatDetected])
+                    f1, f2 = computeF1Score([flatGT], [flatDetected])
                     
 #                     print("Computing conductances...")
 #                     condDetected = getConductance(G1, detectedCommunities)
@@ -288,8 +287,8 @@ for graphFile in graphFiles:
 #                 modGT = getModularity(G, groundTruth)
 #                 modDetected = getModularity(G, detectedCommunities)
 
-                VIs.append(vi)
-                Sum_VI += vi
+                F2s.append(f2)
+                Sum_F2 += f2
  
                 F1s.append(f1)
                 Sum_F1 += f1
@@ -313,7 +312,7 @@ for graphFile in graphFiles:
 #                 Sum_CondG += condGT
 
                 i += 1
-                Avg_VI = np.round(Sum_VI / i, 2)
+                Avg_F2 = np.round(Sum_F2 / i, 2)
                 Avg_F1 = np.round(Sum_F1 / i, 2)
                 Avg_Prec = np.round(Sum_Prec / i, 2)
                 Avg_Recall = np.round(Sum_Recall / i, 2)
@@ -323,15 +322,15 @@ for graphFile in graphFiles:
                 Avg_CondD = np.round(Sum_CondD / i, 2)
                 Avg_CondG = np.round(Sum_CondG / i, 2)
 
-#                 print("Average VI: " + str(Avg_VI) + " at i=" + str(i))
+#                 print("Average F2: " + str(Avg_F2) + " at i=" + str(i))
 #                 print("Average F1: " + str(Avg_F1) + " at i=" + str(i))
 #                 print("Average Precision: " + str(Avg_Prec) + " at i=" + str(i))
 #                 print("Average Recall: " + str(Avg_Recall) + " at i=" + str(i))
 
                 #print("Avg com: ",avg_size)
-                with open('../data/CCD/VI/' + seedsFile, "a") as myfile:
+                with open('../data/CCD/F2/' + seedsFile, "a") as myfile:
                     # write communities to file
-                    myfile.write(str(vi) + "\n")
+                    myfile.write(str(f2) + "\n")
                 with open('../data/CCD/F1/' + seedsFile, "a") as myfile:
                     # write communities to file
                     myfile.write(str(f1) + "\n")
@@ -359,8 +358,8 @@ for graphFile in graphFiles:
                 if i == 100:
                     break
 
-        with open('../data/CCD/VI/' + seedsFile, "a") as myfile:
-            myfile.write("Average VI: " + str(Avg_VI) + "\n")
+        with open('../data/CCD/F2/' + seedsFile, "a") as myfile:
+            myfile.write("Average F2: " + str(Avg_F2) + "\n")
  
         with open('../data/CCD/F1/' + seedsFile, "a") as myfile:
             myfile.write("Average F1: " + str(Avg_F1) + "\n")
