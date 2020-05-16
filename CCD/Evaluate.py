@@ -23,7 +23,7 @@ graphFiles = []
 # graphFiles.append("edge_dolphins_numbered.txt")
 # graphFiles.append('footballTSEinput_numbered.txt')
 graphFiles.append('graphA.txt')
-graphFiles.append('graphD.txt')
+#graphFiles.append('graphD.txt')
 #graphFiles.append("LiveJ.txt")
 #graphFiles.append("Orkut.txt")
 
@@ -35,7 +35,7 @@ allCommunitiesFile = {}
 # allCommunitiesFile.update({'edge_dolphins_numbered.txt': 'comDolphinsNumbered.txt'})
 # allCommunitiesFile.update({'footballTSEinput_numbered.txt': 'comFootballTSEinputNumbered.txt'})
 allCommunitiesFile.update({'graphA.txt': 'newComA.txt'})
-allCommunitiesFile.update({'graphD.txt': 'newComD.txt'})
+#allCommunitiesFile.update({'graphD.txt': 'newComD.txt'})
 # allCommunitiesFile.update({'LiveJ.txt': 'newComLJ.txt'})
 # allCommunitiesFile.update({'Orkut.txt': 'newComO.txt'})
 # #   
@@ -50,8 +50,8 @@ seedsFiles = {}
 #                      'seedsFootball.txt']})
 seedsFiles.update({'graphA.txt': [
                      'seedsA1.txt', 'seedsA2.txt', 'seedsA3.txt']})
-seedsFiles.update({'graphD.txt': [
-                     'seedsD1.txt', 'seedsD2.txt','seedsD3.txt']})
+#seedsFiles.update({'graphD.txt': [
+                     #'seedsD1.txt', 'seedsD2.txt','seedsD3.txt']})
 # seedsFiles.update({'LiveJ.txt': [
 #                     'seedsLJ1.txt', 'seedsLJ2.txt', 'seedsLJ3.txt']})
 # seedsFiles.update({'Orkut.txt': [
@@ -140,14 +140,6 @@ seedsFiles.update({'graphD.txt': [
 # seedsFiles.update({'footballTSEinput_numbered.txt':['seedsFootball.txt']})
 
 
-# graphFile = ['simple1.txt']
-# allCommunities = 'com-simple1.txt'
-# seedsFile = ['seedsSimple1.txt']
-
-# graphFile = ['karate.txt']
-# allCommunities = 'com-karate.txt'
-# seedsFile = ['seedsKarate.txt']
-
 
 def getCommunities(filename, seed):
 #     print("file: ", filename)
@@ -174,9 +166,9 @@ for graphFile in graphFiles:
 #         adj_matrix = nx.adjacency_matrix(G1)
         
     else:
-        if graphFile == "LiveJ.txt" or graphFile == "Orkut.txt":
-            G1 = readGraph('../data/graphs/' + graphFile, delm="\t")
-#             adj_matrix = load_graph('../data/graphs/' + graphFile, delimiter='\t', comment='#')
+        if graphFile == "footballTSEinput_numbered.txt" or graphFile == "edge_dolphins_numbered.txt":
+            G1 = readGraph('../data/graphs/' + graphFile, delm=" ")
+#             adj_matrix = load_graph('../data/graphs/' + graphFile, delimiter='', comment='#')
         else:
             G1 = readGraph('../data/graphs/' + graphFile, delm="\t")
 #             adj_matrix = load_graph('../data/graphs/' + graphFile, delimiter='\t', comment='#')

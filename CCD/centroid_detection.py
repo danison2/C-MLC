@@ -4,7 +4,7 @@ Created on Dec 1, 2019
 @author: DanyK
 '''
 import networkx as nx
-from CCD.ppr_cd import localSampling
+from ppr_cd import localSampling
 from hk_cd import hk_cd
 
 
