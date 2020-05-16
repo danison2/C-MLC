@@ -1,0 +1,13 @@
+Hawaii 
+FloridaState	NorthCarolinaState	Virginia	GeorgiaTech	Duke	NorthCarolina	Clemson	WakeForest	Maryland	
+VirginiaTech	BostonCollege	WestVirginia	Syracuse	Pittsburgh	Temple	Rutgers	MiamiFlorida	
+Iowa	PennState	Northwestern	Wisconsin	Michigan	Purdue	OhioState	Minnesota	Illinois	MichiganState	Indiana	
+KansasState	TexasTech	Baylor	Colorado	Kansas	IowaState	Nebraska	TexasA&M	Oklahoma	Texas	Missouri	OklahomaState	
+EastCarolina	Houston	Louisville	Memphis	SouthernMississippi	Tulane	Army	Cincinnati	TexasChristian	AlabamaBirmingham	
+CentralFlorida	Connecticut	Navy	NotreDame	UtahState	
+NorthernIllinois	WesternMichigan	Akron	BallState	BowlingGreenState	Buffalo	CentralMichigan	EasternMichigan	Kent	MiamiOhio	Ohio	Toledo	Marshall	
+BrighamYoung	NewMexico	SanDiegoState	Wyoming	Utah	ColoradoState	AirForce	NevadaLasVegas	
+SouthernCalifornia	ArizonaState	UCLA	Arizona	Washington	Oregon	Stanford	WashingtonState	OregonState	California	
+Auburn	Alabama	Florida	Kentucky	Vanderbilt	MississippiState	SouthCarolina	Tennessee	Mississippi	Georgia	LouisianaState	Arkansas	
+NorthTexas	ArkansasState	Idaho	LouisianaMonroe	MiddleTennesseeState	NewMexicoState	LouisianaLafayette	
+BoiseState	FresnoState	Rice	SouthernMethodist	LouisianaTech	Nevada	SanJoseState	TexasElPaso	Tulsa	Hawaii	
