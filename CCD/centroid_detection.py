@@ -256,8 +256,8 @@ def detectComs(G1, G, seed, sample_size, samplingMethod):
 #         print("Finding a community for: ", centroid, "with degree: ", G.degree(centroid))
 #         seedset = [centroid, seed]
 #         com = sorted(extendSeed(G, centroid))
-#         com = localSampling(G1, [centroid])
-        com = hk_cd(G1, [centroid])
+        com = localSampling(G1, [centroid])
+        #com = hk_cd(G1, [centroid])
         
 #         com  = LOSP(G1, [centroid])
 #         com.extend([seed])
