@@ -4,9 +4,98 @@ Created on Dec 1, 2019
 @author: DanyK
 '''
 import networkx as nx
-from ppr_cd import localSampling
+from CCD.ppr_cd import ppr_cd
 from hk_cd import hk_cd
 
+def keys_exists(element, *keys):
+    '''
+    Check if *keys (nested) exists in `element` (dict).
+    '''
+    if not isinstance(element, dict):
+        raise AttributeError('keys_exists() expects dict as first argument.')
+    if len(keys) == 0:
+        raise AttributeError('keys_exists() expects at least two arguments, one given.')
+
+    _element = element
+    for key in keys:
+        try:
+            _element = _element[key]
+        except KeyError:
+            return False
+    return True
+
+def choose_next_node(G, current_node, similarity_scores):
+    max_score = -1
+    next_node = -1
+    for u in list(nx.neighbors(G, current_node)):
+        if keys_exists(similarity_scores, current_node):
+            if keys_exists(similarity_scores[current_node], u):
+                score = similarity_scores[current_node][u]
+            else:
+                score = FOF(current_node, u, G) + OFF(current_node, u, G)
+    #             similarity_scores[current_node][u] = score
+    #             similarity_scores[u][current_node] = score
+                similarity_scores[current_node] = {}
+                similarity_scores[current_node][u] = score
+                similarity_scores[u] = {}
+                similarity_scores[u][current_node] = score
+            if score > max_score:
+                max_score = score
+                next_node = u
+        else:
+            score = FOF(current_node, u, G) + OFF(current_node, u, G)
+#             similarity_scores[current_node][u] = score
+#             similarity_scores[u][current_node] = score
+            similarity_scores[current_node] = {}
+            similarity_scores[current_node][u] = score
+            similarity_scores[u] = {}
+            similarity_scores[u][current_node] = score
+        if score > max_score:
+            max_score = score
+            next_node = u
+    return next_node
+                          
+
+def choose_centroid_node(G, exploring_path):
+    if nx.degree(G, exploring_path[-2]) > nx.degree(G, exploring_path[-1]):
+        centroid_node = exploring_path[-2]
+    elif nx.degree(G, exploring_path[-2]) < nx.degree(G, exploring_path[-1]):
+        centroid_node = exploring_path[-1]
+    else:
+        centroid_node = max(exploring_path[-1], exploring_path[-2])
+    return centroid_node
+
+
+def findCentroids(G,sampled_neighbors):
+    centroid_set = []
+    explored_nodes = {}
+    similarity_scores = {}
+    for u in sampled_neighbors:
+        current_node = u
+        exploring_path = [u]
+        while(True):
+            if current_node in explored_nodes.keys():
+                centroid_node = explored_nodes[current_node]
+                for v in exploring_path:
+                    explored_nodes[v] = centroid_node
+                break
+            else:
+                next_node = choose_next_node(G, current_node, similarity_scores)
+                if next_node not in exploring_path:
+                    current_node = next_node
+                    exploring_path.append(next_node)
+                else:
+                    if len(exploring_path) == 1:
+                        centroid_node = current_node
+                    else:
+                        centroid_node = choose_centroid_node(G, exploring_path)
+                    centroid_set.append(centroid_node)
+                    for v in exploring_path:
+                        explored_nodes[v] = centroid_node
+                    break
+    return list(set(centroid_set))
+                        
+                        
 
 def getNeighbours(G, seedset):
     if type(seedset) is not list:
@@ -36,8 +125,6 @@ def FOF(u,v, G):
         u = [u]
     if type(v) is not list:
         v = [v]
-        
-#     avg_deg_uv = getAvgDegree(G, u, v)
        
     total_score = 0
     for x in u:
@@ -73,131 +160,6 @@ def OFF(u_list, v_list, G):
     all_nodes_total = all_nodes_total * 0.25
 #     print("Done computing OFF")
     return all_nodes_total
-        
-
-def nextNode(G, start, seed):
-    start_neighbors = neighborSampling(G, start, 10, "minDegree")
-#     print("Deciding between: ", len(start_neighbors), " nodes")
-    max_score = 0
-    next_node  = start
-    for _, v in enumerate(start_neighbors):
-#         print("Node: ", v)
-#         score = crs(v, start, G)
-        score = FOF(start, v, G) + OFF(start, v, G)
-#         score = FOF(start, v, G)
-#         print("Score: ", score)
-#         if int(start) ==  int(seed):
-#             seed_score = 1 #self loop
-#         else:
-#             seed_score = F(seed, v, G) + FOF(seed, v, G) + OFF(seed, v, G)
-# # #         print("Seed score: ", seed_score)
-        if score > max_score:
-            max_score = score
-            next_node = v
-    return next_node, max_score
-
-def biased_DFS(G, start, seed):
-    queue = [start]
-    explored = [start]
-    scores = [1 * len(G[start])]
-#     i = 1
-    while(queue):
-        start = queue.pop()
-#         print("start node: ", start)
-        next_node, score = nextNode(G, start, seed)
-#         next_node, score = nextVertex(G, start)
-#         print("Next node: ", next_node)
-#         print("Score: ", score)
-        if next_node not in explored:
-            queue.append(next_node)
-            explored.append(next_node)
-            scores.append(score)
-#         i += 1        
-    prev_score = scores[-1] #previous node
-    if prev_score > score:
-        centroid = explored[-1]
-    elif score > prev_score:
-        centroid = next_node 
-    else: #compare degrees
-        #check if it is the same node
-        if len(explored) == 1:
-            centroid = explored[0] 
-        else:     
-            node_degrees = sorted([(v, len(G[v])) for v in explored[-2:]])
-#             print("node degrees: ", node_degrees)
-            if node_degrees[0][1] > node_degrees[1][1]: #
-                centroid = node_degrees[0][0]
-            else:
-                centroid = node_degrees[1][0]
-
-#         centroid = max(node_degrees, key=lambda x: x[1])[0]
-#     print("Found a centroid: ", centroid)
-    return centroid
-
-def BFS(graph, start, max_level = 2):
-#     print("BFS...")
-    # keep track of all visited nodes
-    explored = []
-    # keep track of nodes to be checked
-    queue = [start]
-    levels = {}         # this dict keeps track of levels
-    levels[start] = 0    # depth of start node is 0
-    # to avoid inserting the same node twice into the queue
-    visited = [start]
-    # keep looping until there are nodes still to be checked
-    while queue:
-        node = queue.pop(0)
-        if levels[node] <= max_level:
-            explored.append(node)
-            neighbours = graph.neighbors(node)
-            # add neighbours of node to queue
-            for neighbour in neighbours:
-                if neighbour not in visited:
-                    queue.append(neighbour)
-                    visited.append(neighbour)
-                    levels[neighbour] = levels[node] + 1
-                    # print(neighbour, ">>", levels[neighbour]
-                    
-#     print("END BFS")
-    return explored
-
-def extendSeed(G, seed):
-    C = [seed]
-    neibourhood_C = getNeighbours(G, C)
-    explored = [seed]
-    while(True):
-        com_size = len(C)
-#         print("C: ", C)
-        for v in [n for n in neibourhood_C if n not in C and n not in explored]:
-#             print("v: ", v)
-            centroid = biased_DFS(G, v, v)
-#             print("centroid: ", centroid)
-            explored.append(v)
-            if(centroid in C or seed in G[centroid]):
-                if(v not in C):
-                    C.append(v)
-#             score =  F(C, v, G) + FOF(C, v, G)
-# #             print("score: ", score, "F: ", F(C, v, G), "FOF: ", FOF(C, v, G))
-# #             print("degree: ", G.degree(v))
-#             score =  score / G.degree(v)
-#             print("Norm Score: ", score)
-#             if score >= 0.5:
-#                 C.append(v)
-                
-#             else:
-#                 rel_C = F(v, C, G) + FOF(v, C, G) + OFF(v, C, G)
-#                 rest = [n for n in G.neighbors(v) if n not in C]
-#                 rel_rest = F(v, rest, G) + FOF(v, rest, G) + OFF(v, rest, G)
-#                 if(rel_C > rel_rest):
-#                     if(v not in C):
-#                         C.append(v)
-        if len(C) == com_size:
-            break
-        else:
-#             break
-            neibourhood_C = getNeighbours(G, C)
-#         print(sorted(C))
-    return sorted([int(v) for v in C])
 
 def neighborSampling(G, seed, max_nodes, samplingMethod):
     import random
@@ -217,19 +179,6 @@ def neighborSampling(G, seed, max_nodes, samplingMethod):
 #     print("Done Samppling...")
     return sampled_neighbors
 
-def findCentroids(G, sampled_neighbors, seed):
-#     print("Finding centroids")
-#     print("Finding centroids of ", len(sampled_neighbors), " nodes: ", sampled_neighbors)
-    centroids = []
-    for _, start in enumerate(sampled_neighbors):
-#         print("Finding a centroid for ", start)
-        centroid = biased_DFS(G, start, seed)
-#         centroid = getCore(seed, G1)
-        centroids.append(int(centroid))
-#         print(centroid)
-    centroids = list(set(centroids))
-    return centroids
-
 def preprocessG(network):
 #     print("Preprocessing G...")
     G = {}
@@ -240,44 +189,26 @@ def preprocessG(network):
 #     print("Done preprocessing")
     return G
 
-def detectComs(G1, G, seed, sample_size, samplingMethod):
-#     n = len(G1.nodes)
-    #     print("Detecting Communities of the seed: ", seed) 
-    sample = neighborSampling(G, seed, sample_size, samplingMethod)
-#     sample.append(seed)
-#     print("Sample: ", sample)
-    centroids = findCentroids(G, sample, seed)
-    filtered_centroids = filterCentroids(G1, centroids)
-#     print("centroids: ", centroids)
-    #     centroids.append(seed)
+def getShortestPathNodes(G, fromNode, toNode):
+    return nx.shortest_path(G, fromNode, toNode)
+
+def detectComs(G, G_preprocessed, seed, sample_size, samplingMethod):
+    sample = neighborSampling(G_preprocessed, seed, sample_size, samplingMethod)
+    centroids = findCentroids(G, sample)
          
     coms = []
-    for centroid in filtered_centroids:
-#         print("Finding a community for: ", centroid, "with degree: ", G.degree(centroid))
-#         seedset = [centroid, seed]
-#         com = sorted(extendSeed(G, centroid))
-        com = localSampling(G1, [centroid])
-        #com = hk_cd(G1, [centroid])
-        
-#         com  = LOSP(G1, [centroid])
-#         com.extend([seed])
-     
+    for centroid in centroids:
+        strongSeedset = getShortestPathNodes(G, seed, centroid)
+#         print("Strong seedset", strongSeedset)
+        com = ppr_cd(G, strongSeedset, seed, centroids)
+#         com = hk_cd(G1, strongSeedset, seed, centroids)
         coms.append(list(set(com)))
-#     return coms
-    return coms, filtered_centroids
+    return coms, []
 
-def filterCentroids(G, centroids):
-    from itertools import combinations
-    filtered_centroids = [c for c in centroids]
-    possible_edges = list(combinations(sorted(centroids), 2))
-    for u,v in possible_edges:
-#         print(u,"_", v)
-        if u in G[v]: #they are connected then choose one
-#             print("connected")
-            if len(G[u]) < len(G[v]):
-                if u in filtered_centroids:
-                    filtered_centroids.remove(u) 
-            else:
-                if v in filtered_centroids:
-                    filtered_centroids.remove(v)  
-    return filtered_centroids
+
+# sample usage:
+
+# G = an undirected graph: read it using any method provided in loadNetwork.py
+# G_preprocessed = preprocessG(G)
+# seed = some_seed_from_G
+# coms, _ = detectComs(G, G_preprocessed, seed, 10, "minDegree")#
