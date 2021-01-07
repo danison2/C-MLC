@@ -1,10 +1,9 @@
-#This is a modified file of the riginal file written by Kyle Kloster and David F. Gleich
 import collections
 
 import networkx as nx
 
 
-def ppr_cd(network, seed):
+def ppr_cd(network, seedset, seed, centroids):
     G = {}
     for node in network.nodes:
         node_neighbors = set([int(node) for node in nx.neighbors(network, node)])
@@ -21,8 +20,13 @@ def ppr_cd(network, seed):
     x = {} # Store x, r as dictionaries
     r = {} # initialize residual
     Q = collections.deque() # initialize queue
-    for s in seed: 
-        r[s] = 1/len(seed)
+    for s in seedset:
+        if s is seed:
+            r[s] = 0.5/len(seedset) + 0.3
+        elif s in centroids:
+            r[s] = 0.5/len(seedset) + (0.2 / len(centroids))
+        else: 
+            r[s] = 0.5/len(seedset)
         Q.append(s)
     while len(Q) > 0:
         v = Q.popleft() # v has r[v] > tol*deg(v)
@@ -68,8 +72,3 @@ def ppr_cd(network, seed):
                 bestcond = cutS/denom
                 bestset = set(S) # make a copy
     return bestset #, bestcond 
-
-
-def localSampling(network, seedset):
-    sampled = list(ppr_cd(network, seedset))
-    return sampled
