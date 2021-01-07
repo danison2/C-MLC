@@ -3,7 +3,9 @@ hkrelax.py
 A demonstration of a relaxation method for computing a heat-kernel based
 community that implements the algorith from "Heat-kernel based community
 detection" by Kloster & Gleich.
-Written by Kyle Kloster and David F. Gleich
+Originally Written by Kyle Kloster and David F. Gleich
+It was adapted to recompute probabilities with different weights:
+the seed has a higher probability compared to the centroid and other nodes in the seedset
 """
 
 import collections
@@ -18,7 +20,7 @@ def compute_psis(N,t):
         psis[i] = psis[i+1]*t/(float(i+1.))+1.
     return psis
     
-def hk_cd(network, seed):
+def hk_cd(network, seedset, seed, centroids):
     
     G = {}
     for node in network.nodes:
@@ -43,8 +45,14 @@ def hk_cd(network, seed):
     x = {} # Store x, r as dictionaries
     r = {} # initialize residual
     Q = collections.deque() # initialize queue
-    for s in seed: 
-        r[(s,0)] = 1./len(seed)
+    for s in seedset: 
+        if s is seed:
+            r[(s,0)] = 0.5/len(seedset) + 0.3
+        elif s in centroids:
+            r[(s,0)] = 0.5/len(seedset) + (0.2 / len(centroids))
+        else:
+            r[(s,0)] = 0.5/len(seedset) 
+        
         Q.append((s,0))
     while len(Q) > 0:
         (v,j) = Q.popleft() # v has r[(v,j)] ...
@@ -69,13 +77,6 @@ def hk_cd(network, seed):
     
     # Find cluster, first normalize by degree
     for v in x: x[v] = x[v]/len(G[v])  
-      
-#     for v in range(1,len(G)+1):
-#         if v in x:
-#             print("hk[%2i] = %.16lf"%(v, x[v]))
-#         else:
-#             print("hk[%2i] = -0."%(v))
-#     print(x)
         
     ## Step 2 do a sweep cut based on this vector 
       
@@ -108,70 +109,4 @@ def hk_cd(network, seed):
 #     print("Best set conductance: %f"%(bestcond))
 #     print("  set = ", str(bestset))
     return list(bestset)
-#     return supportN
-
-
-def hk_sampling(network, seed):
-    
-    G = {}
-    for node in network.nodes:
-        node_neighbors = set([int(node) for node in nx.neighbors(network, node)])
-        G.update({int(node):node_neighbors})
-    
-    ## Setup parameters that can be computed automatically
-    # see paper for how to set this automatically no greater than: 2t * log(1/eps)
-    t = 80.
-    eps = 0.01
-    N = int((2 * t) * math.log(1/eps, 10))
-#     print(N)
-#     seed = [1]
-    psis = compute_psis(N,t)
-        
-    ## Estimate hkpr vector 
-    # G is graph as dictionary-of-sets, 
-    # t, tol, N, psis are precomputed
-    x = {} # Store x, r as dictionaries
-    r = {} # initialize residual
-    Q = collections.deque() # initialize queue
-    for s in seed: 
-        r[(s,0)] = 1./len(seed)
-        Q.append((s,0))
-    while len(Q) > 0:
-        (v,j) = Q.popleft() # v has r[(v,j)] ...
-        rvj = r[(v,j)]
-        # perform the hk-relax step
-        if v not in x: x[v] = 0
-        x[v] += rvj 
-        r[(v,j)] = 0
-        mass = (t*rvj/(float(j)+1.))/len(G[v])
-        for u in G[v]:   # for neighbors of v
-            next_item = (u,j+1) # in the next block
-            if j+1 == N: 
-                x[u] += rvj/len(G[v])
-                continue
-            if next_item not in r: r[next_item] = 0
-            thresh = math.exp(t)*eps*len(G[u])
-            thresh = thresh/(N*psis[j+1])
-            if r[next_item] < thresh and \
-            r[next_item] + mass >= thresh:
-                Q.append(next_item) # add u to queue
-            r[next_item] = r[next_item] + mass
-    
-    # Find cluster, first normalize by degree
-    for v in x: x[v] = x[v]/len(G[v])  
-      
-#     for v in range(1,len(G)+1):
-#         if v in x:
-#             print("hk[%2i] = %.16lf"%(v, x[v]))
-#         else:
-#             print("hk[%2i] = -0."%(v))
-#     print(x)
-        
-    ## Step 2 do a sweep cut based on this vector 
-      
-    # now sort x's keys by value, decreasing
-    sv = sorted(x.items(), key=lambda x: x[1], reverse=True)
-    supportN = [v for v, p in sv if p > 0] 
-    
-    return supportN
     
